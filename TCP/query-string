@@ -1,0 +1,73 @@
+package TCP;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.net.URLDecoder;
+import java.util.*;
+public class TCP_9DWO0CVq {
+    public static void readFully(SocketChannel sc, ByteBuffer bb) throws Exception{
+        while(bb.hasRemaining()){
+            sc.read(bb);
+        }
+    }
+    public static void writeFully(SocketChannel sc, ByteBuffer bb) throws Exception{
+        while(bb.hasRemaining()){
+            sc.write(bb);
+        }
+    }
+    public static void main(String[] args) throws Exception{
+        SocketChannel sc = SocketChannel.open();
+        sc.connect(new InetSocketAddress("36.50.135.242",2211));
+        // gui
+        String code = "B22DCAT134;9DWO0CVq";
+        byte[] data = code.getBytes("UTF-8");
+        ByteBuffer sendBuffer = ByteBuffer.allocate(4 + data.length);
+        sendBuffer.putInt(data.length);
+        sendBuffer.put(data);
+        sendBuffer.flip();
+        writeFully(sc,sendBuffer);
+        // nhan 2 frame
+        String query = "";
+        for(int i = 0; i < 2; i++){
+            ByteBuffer lenBuffer = ByteBuffer.allocate(4);
+            readFully(sc,lenBuffer);
+            lenBuffer.flip();
+            int len = lenBuffer.getInt();
+            ByteBuffer dataBuffer = ByteBuffer.allocate(len);
+            readFully(sc,dataBuffer);
+            dataBuffer.flip();
+            byte[] bytes = new byte[len];
+            dataBuffer.get(bytes);
+            query += new String(bytes,"UTF-8");
+        }
+        System.out.println(query);
+        // xu ly
+        String[] arr = query.split("&");
+        TreeMap<String,String> map = new TreeMap<>();
+        for(String x : arr){
+            String[] kv = x.split("=",2);
+            String key = URLDecoder.decode(kv[0],"UTF-8");
+            String value = "";
+            if(kv.length > 1){
+                value = URLDecoder.decode(kv[1],"UTF-8");
+            }
+            map.put(key,value);
+        }
+        String ans = "";
+        for(String key : map.keySet()){
+            ans += key + "=" + map.get(key) + ";";
+        }
+        if(ans.endsWith(";")){
+            ans = ans.substring(0,ans.length() - 1);
+        }
+        System.out.println(ans);
+        // gui ket qua
+        byte[] result = ans.getBytes("UTF-8");
+        ByteBuffer resultBuffer = ByteBuffer.allocate(4 + result.length);
+        resultBuffer.putInt(result.length);
+        resultBuffer.put(result);
+        resultBuffer.flip();
+        writeFully(sc,resultBuffer);
+        sc.close();
+    }
+}
