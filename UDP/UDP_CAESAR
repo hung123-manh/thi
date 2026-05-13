@@ -1,0 +1,80 @@
+package UDP;
+
+import java.net.*;
+
+public class UDP_6p4RDq2Z {
+    public static void main(String[] args) throws Exception {
+
+        DatagramSocket socket = new DatagramSocket();
+        InetAddress serverAddress = InetAddress.getByName("36.50.135.242");
+        int serverPort = 2207;
+
+        // gui
+        String message = ";B22DCAT134;6p4RDq2Z";
+
+        DatagramPacket sendPacket = new DatagramPacket(
+                message.getBytes(),
+                message.length(),
+                serverAddress,
+                serverPort
+        );
+
+        socket.send(sendPacket);
+
+        // nhan
+        byte[] buffer = new byte[1024];
+
+        DatagramPacket receivePacket = new DatagramPacket(
+                buffer,
+                buffer.length
+        );
+
+        socket.receive(receivePacket);
+
+        String received = new String(
+                receivePacket.getData(),
+                0,
+                receivePacket.getLength()
+        );
+
+        System.out.println(received);
+
+        // xu ly
+        String[] parts = received.split(";");
+
+        String requestId = parts[0];
+        String encode = parts[1];
+        int k = Integer.parseInt(parts[2]);
+
+        String decode = "";
+
+        for(char c : encode.toCharArray()){
+
+            if(c >= 'A' && c <= 'Z'){
+                decode += (char)((c - 'A' - k + 26) % 26 + 'A');
+            }
+            else if(c >= 'a' && c <= 'z'){
+                decode += (char)((c - 'a' - k + 26) % 26 + 'a');
+            }
+            else{
+                decode += c;
+            }
+        }
+
+        String result = requestId + ";" + decode;
+
+        System.out.println(result);
+
+        // gui ket qua
+        DatagramPacket resultPacket = new DatagramPacket(
+                result.getBytes(),
+                result.length(),
+                serverAddress,
+                serverPort
+        );
+
+        socket.send(resultPacket);
+
+        socket.close();
+    }
+}
