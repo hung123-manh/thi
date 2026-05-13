@@ -1,3 +1,6 @@
+/* Nhận thông điệp là một chuỗi từ server theo định dạng “requestId; n; A1,A2,...An”, với  - requestId là chuỗi ngẫu nhiên duy nhất  - n là một số ngẫu nhiên nhỏ hơn
+100.  -            A1, A2 ... Am với m <= n là các giá trị nguyên liên tiếp, nhỏ hơn hoặc bằng n và không trùng nhau */
+
 package UDP;
 
 import java.net.*;
